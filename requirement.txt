@@ -1,0 +1,38 @@
+# FILE 1: requirements.txt
+# Python package dependencies for Bank Churn Prediction project
+
+# Core Data Science Libraries
+numpy==1.23.5
+pandas==1.5.3
+scikit-learn==1.2.2
+
+# Deep Learning
+tensorflow==2.12.0
+keras==2.12.0
+
+# Imbalanced Learning (for SMOTE)
+imbalanced-learn==0.10.1
+
+# Visualization
+matplotlib==3.7.1
+seaborn==0.12.2
+
+# Machine Learning - Additional Models
+xgboost==1.7.5
+
+# Web Framework
+Flask==2.3.2
+gunicorn==20.1.0
+
+# Utilities
+joblib==1.2.0
+pickle-mixin==1.0.2
+
+# For model serialization
+dill==0.3.6
+
+# API and CORS support
+flask-cors==4.0.0
+
+# Environment variables
+python-dotenv==1.0.0
