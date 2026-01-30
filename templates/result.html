@@ -1,0 +1,435 @@
+<!-- results.html -->
+<!-- Prediction Results Display Page -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prediction Results - Bank Churn Predictor</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js for visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top shadow">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-chart-line"></i> Bank Churn Predictor
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">
+                            <i class="fas fa-home"></i> Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/predict">
+                            <i class="fas fa-calculator"></i> Predict
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/models-info">
+                            <i class="fas fa-brain"></i> Models
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/about">
+                            <i class="fas fa-info-circle"></i> About
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mt-5 mb-5">
+        <!-- Page Header -->
+        <div class="text-center mb-4">
+            <h1 class="display-5 fw-bold text-primary">
+                <i class="fas fa-poll"></i> Churn Prediction Results
+            </h1>
+            <p class="lead text-muted">Analysis from 6 Machine Learning Models</p>
+        </div>
+
+        <!-- Overall Risk Assessment -->
+        {% if avg_probability %}
+        <div class="row mb-4">
+            <div class="col-lg-8 mx-auto">
+                <div class="card border-0 shadow-lg alert-{{ risk_color }}">
+                    <div class="card-body text-center p-4">
+                        <h2 class="card-title mb-3">
+                            <i class="fas fa-exclamation-triangle"></i> Risk Assessment
+                        </h2>
+                        <div class="display-3 fw-bold mb-2">{{ avg_probability }}%</div>
+                        <h4 class="mb-2">
+                            <span class="badge bg-{{ risk_color }} fs-5">
+                                {{ risk_level }}
+                            </span>
+                        </h4>
+                        <p class="lead mb-0">{{ risk_message }}</p>
+                        
+                        <!-- Risk Meter -->
+                        <div class="progress mt-3" style="height: 30px;">
+                            <div class="progress-bar bg-{{ risk_color }}" 
+                                 role="progressbar" 
+                                 style="width: {{ avg_probability }}%;" 
+                                 aria-valuenow="{{ avg_probability }}" 
+                                 aria-valuemin="0" 
+                                 aria-valuemax="100">
+                                {{ avg_probability }}%
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Customer Information Summary -->
+        <div class="card mb-4 shadow">
+            <div class="card-header bg-info text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-user"></i> Customer Information Summary
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <!-- Column 1 -->
+                    <div class="col-md-4 mb-3">
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-credit-card text-primary"></i> Credit Score
+                            </div>
+                            <div class="info-value">{{ customer_data.credit_score }}</div>
+                        </div>
+                        
+                        <div class="info-item mt-3">
+                            <div class="info-label">
+                                <i class="fas fa-globe text-primary"></i> Geography
+                            </div>
+                            <div class="info-value">{{ customer_data.geography }}</div>
+                        </div>
+                        
+                        <div class="info-item mt-3">
+                            <div class="info-label">
+                                <i class="fas fa-venus-mars text-primary"></i> Gender
+                            </div>
+                            <div class="info-value">{{ customer_data.gender }}</div>
+                        </div>
+                        
+                        <div class="info-item mt-3">
+                            <div class="info-label">
+                                <i class="fas fa-birthday-cake text-primary"></i> Age
+                            </div>
+                            <div class="info-value">{{ customer_data.age }} years</div>
+                        </div>
+                    </div>
+
+                    <!-- Column 2 -->
+                    <div class="col-md-4 mb-3">
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-calendar-alt text-success"></i> Tenure
+                            </div>
+                            <div class="info-value">{{ customer_data.tenure }} years</div>
+                        </div>
+                        
+                        <div class="info-item mt-3">
+                            <div class="info-label">
+                                <i class="fas fa-dollar-sign text-success"></i> Balance
+                            </div>
+                            <div class="info-value">{{ customer_data.balance }}</div>
+                        </div>
+                        
+                        <div class="info-item mt-3">
+                            <div class="info-label">
+                                <i class="fas fa-shopping-bag text-success"></i> Number of Products
+                            </div>
+                            <div class="info-value">{{ customer_data.num_products }}</div>
+                        </div>
+                        
+                        <div class="info-item mt-3">
+                            <div class="info-label">
+                                <i class="fas fa-money-bill-wave text-success"></i> Estimated Salary
+                            </div>
+                            <div class="info-value">{{ customer_data.estimated_salary }}</div>
+                        </div>
+                    </div>
+
+                    <!-- Column 3 -->
+                    <div class="col-md-4 mb-3">
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-credit-card text-warning"></i> Has Credit Card
+                            </div>
+                            <div class="info-value">
+                                {% if customer_data.has_credit_card == 'Yes' %}
+                                    <span class="badge bg-success">
+                                        <i class="fas fa-check"></i> Yes
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-secondary">
+                                        <i class="fas fa-times"></i> No
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="info-item mt-3">
+                            <div class="info-label">
+                                <i class="fas fa-user-check text-warning"></i> Active Member
+                            </div>
+                            <div class="info-value">
+                                {% if customer_data.is_active_member == 'Yes' %}
+                                    <span class="badge bg-success">
+                                        <i class="fas fa-check"></i> Active
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-danger">
+                                        <i class="fas fa-times"></i> Inactive
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Individual Model Predictions -->
+        <div class="mb-4">
+            <h3 class="text-center mb-4">
+                <i class="fas fa-brain"></i> Individual Model Predictions
+            </h3>
+            
+            <div class="row g-3">
+                {% for model_name, prediction in predictions.items() %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm model-card">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-robot"></i> {{ model_name }}
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            {% if 'error' in prediction %}
+                                <div class="alert alert-danger mb-0">
+                                    <i class="fas fa-exclamation-circle"></i> 
+                                    Error: {{ prediction.error }}
+                                </div>
+                            {% else %}
+                                <div class="text-center">
+                                    <!-- Probability Gauge -->
+                                    <div class="probability-display mb-3">
+                                        <div class="display-4 fw-bold text-primary">
+                                            {{ prediction.probability }}%
+                                        </div>
+                                        <div class="text-muted">Churn Probability</div>
+                                    </div>
+                                    
+                                    <!-- Progress Bar -->
+                                    <div class="progress mb-3" style="height: 20px;">
+                                        {% if prediction.probability >= 60 %}
+                                            <div class="progress-bar bg-danger" 
+                                                 role="progressbar" 
+                                                 style="width: {{ prediction.probability }}%;">
+                                            </div>
+                                        {% elif prediction.probability >= 40 %}
+                                            <div class="progress-bar bg-warning" 
+                                                 role="progressbar" 
+                                                 style="width: {{ prediction.probability }}%;">
+                                            </div>
+                                        {% else %}
+                                            <div class="progress-bar bg-success" 
+                                                 role="progressbar" 
+                                                 style="width: {{ prediction.probability }}%;">
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <!-- Prediction Badge -->
+                                    <h5>
+                                        {% if 'Churn' in prediction.prediction %}
+                                            <span class="badge bg-danger fs-6">
+                                                <i class="fas fa-user-times"></i> Will Churn
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-success fs-6">
+                                                <i class="fas fa-user-check"></i> Will Stay
+                                            </span>
+                                        {% endif %}
+                                    </h5>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Visualization Chart -->
+        <div class="card mb-4 shadow">
+            <div class="card-header bg-secondary text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-chart-bar"></i> Model Comparison Chart
+                </h4>
+            </div>
+            <div class="card-body">
+                <canvas id="modelComparisonChart" height="100"></canvas>
+            </div>
+        </div>
+
+        <!-- Recommendations -->
+        <div class="card mb-4 shadow border-warning">
+            <div class="card-header bg-warning">
+                <h4 class="mb-0">
+                    <i class="fas fa-lightbulb"></i> Retention Recommendations
+                </h4>
+            </div>
+            <div class="card-body">
+                {% if avg_probability >= 60 %}
+                <div class="alert alert-danger">
+                    <h5><i class="fas fa-exclamation-triangle"></i> High Risk - Immediate Action Required</h5>
+                    <ul class="mb-0">
+                        <li>Contact customer within 24 hours</li>
+                        <li>Offer personalized retention package</li>
+                        <li>Schedule meeting with relationship manager</li>
+                        <li>Provide premium service upgrade options</li>
+                        <li>Consider waiving fees or offering bonus interest rates</li>
+                    </ul>
+                </div>
+                {% elif avg_probability >= 40 %}
+                <div class="alert alert-warning">
+                    <h5><i class="fas fa-exclamation-circle"></i> Medium Risk - Proactive Engagement Needed</h5>
+                    <ul class="mb-0">
+                        <li>Send personalized email with product recommendations</li>
+                        <li>Offer loyalty rewards or cashback programs</li>
+                        <li>Conduct satisfaction survey</li>
+                        <li>Promote relevant banking services</li>
+                        <li>Monitor account activity closely</li>
+                    </ul>
+                </div>
+                {% else %}
+                <div class="alert alert-success">
+                    <h5><i class="fas fa-check-circle"></i> Low Risk - Maintain Engagement</h5>
+                    <ul class="mb-0">
+                        <li>Continue regular service quality</li>
+                        <li>Send periodic newsletters with banking tips</li>
+                        <li>Offer new product information</li>
+                        <li>Recognize customer loyalty</li>
+                        <li>Maintain positive relationship</li>
+                    </ul>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="text-center">
+            <a href="/predict" class="btn btn-primary btn-lg px-5 me-2">
+                <i class="fas fa-redo"></i> Make Another Prediction
+            </a>
+            <a href="/" class="btn btn-outline-secondary btn-lg px-5">
+                <i class="fas fa-home"></i> Back to Home
+            </a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white text-center py-4 mt-5">
+        <div class="container">
+            <p class="mb-0">
+                <i class="fas fa-chart-line"></i> Bank Customer Churn Prediction System
+            </p>
+            <p class="mb-0 text-muted small">
+                Powered by Machine Learning | Built with Flask & TensorFlow
+            </p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Chart.js Script -->
+    <script>
+        // Prepare data for chart
+        const modelNames = [];
+        const probabilities = [];
+        
+        {% for model_name, prediction in predictions.items() %}
+            {% if 'probability' in prediction %}
+                modelNames.push('{{ model_name }}');
+                probabilities.push({{ prediction.probability }});
+            {% endif %}
+        {% endfor %}
+        
+        // Create chart
+        const ctx = document.getElementById('modelComparisonChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: modelNames,
+                datasets: [{
+                    label: 'Churn Probability (%)',
+                    data: probabilities,
+                    backgroundColor: probabilities.map(p => 
+                        p >= 60 ? 'rgba(220, 53, 69, 0.7)' : 
+                        p >= 40 ? 'rgba(255, 193, 7, 0.7)' : 
+                        'rgba(40, 167, 69, 0.7)'
+                    ),
+                    borderColor: probabilities.map(p => 
+                        p >= 60 ? 'rgb(220, 53, 69)' : 
+                        p >= 40 ? 'rgb(255, 193, 7)' : 
+                        'rgb(40, 167, 69)'
+                    ),
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return 'Probability: ' + context.parsed.y + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+                          </html>
