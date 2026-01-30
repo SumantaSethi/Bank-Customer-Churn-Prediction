@@ -1,0 +1,249 @@
+<!-- templates/index.html -->
+<!-- Home page for Bank Churn Prediction App -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bank Customer Churn Prediction</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-chart-line"></i> Bank Churn Predictor
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/predict">Make Prediction</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/models-info">Models Info</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/about">About</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section text-white text-center py-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    <h1 class="display-4 fw-bold mb-4">
+                        <i class="fas fa-users"></i> Bank Customer Churn Prediction
+                    </h1>
+                    <p class="lead mb-4">
+                        Predict customer churn probability using 6 advanced machine learning models.
+                        Make data-driven decisions to improve customer retention.
+                    </p>
+                    <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                        <a href="/predict" class="btn btn-light btn-lg px-4 gap-3">
+                            <i class="fas fa-play-circle"></i> Start Prediction
+                        </a>
+                        <a href="/models-info" class="btn btn-outline-light btn-lg px-4">
+                            <i class="fas fa-info-circle"></i> Learn More
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="py-5">
+        <div class="container">
+            <div class="row text-center mb-5">
+                <div class="col">
+                    <h2 class="fw-bold">Why Use This Tool?</h2>
+                    <p class="text-muted">Powerful machine learning to identify at-risk customers</p>
+                </div>
+            </div>
+            
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-3">
+                                <i class="fas fa-brain fa-3x text-primary"></i>
+                            </div>
+                            <h5 class="card-title fw-bold">6 ML Models</h5>
+                            <p class="card-text text-muted">
+                                Ensemble of 6 different machine learning algorithms including
+                                Logistic Regression, Random Forest, SVM, XGBoost, and Deep Learning.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-3">
+                                <i class="fas fa-balance-scale fa-3x text-success"></i>
+                            </div>
+                            <h5 class="card-title fw-bold">SMOTE Balance</h5>
+                            <p class="card-text text-muted">
+                                Advanced SMOTE technique handles class imbalance, ensuring
+                                accurate predictions for both churned and retained customers.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-3">
+                                <i class="fas fa-chart-bar fa-3x text-info"></i>
+                            </div>
+                            <h5 class="card-title fw-bold">High Accuracy</h5>
+                            <p class="card-text text-muted">
+                                Models trained on 10,000 customer records with ROC-AUC scores
+                                above 0.85, ensuring reliable predictions.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="bg-light py-5">
+        <div class="container">
+            <div class="row text-center mb-5">
+                <div class="col">
+                    <h2 class="fw-bold">How It Works</h2>
+                    <p class="text-muted">Simple 3-step process to predict churn</p>
+                </div>
+            </div>
+            
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="text-center">
+                        <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center mb-3" 
+                             style="width: 80px; height: 80px;">
+                            <h2 class="mb-0">1</h2>
+                        </div>
+                        <h5 class="fw-bold">Enter Customer Data</h5>
+                        <p class="text-muted">
+                            Input customer information including credit score, age, balance,
+                            geography, and more.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="text-center">
+                        <div class="rounded-circle bg-success text-white d-inline-flex align-items-center justify-content-center mb-3" 
+                             style="width: 80px; height: 80px;">
+                            <h2 class="mb-0">2</h2>
+                        </div>
+                        <h5 class="fw-bold">AI Analysis</h5>
+                        <p class="text-muted">
+                            Our 6 machine learning models analyze the data and generate
+                            churn probability predictions.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="text-center">
+                        <div class="rounded-circle bg-info text-white d-inline-flex align-items-center justify-content-center mb-3" 
+                             style="width: 80px; height: 80px;">
+                            <h2 class="mb-0">3</h2>
+                        </div>
+                        <h5 class="fw-bold">Get Results</h5>
+                        <p class="text-muted">
+                            Receive detailed predictions from all models plus risk assessment
+                            and retention recommendations.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Statistics Section -->
+    <section class="py-5">
+        <div class="container">
+            <div class="row text-center g-4">
+                <div class="col-md-3">
+                    <div class="p-3">
+                        <h2 class="display-4 fw-bold text-primary">10,000</h2>
+                        <p class="text-muted">Training Records</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="p-3">
+                        <h2 class="display-4 fw-bold text-success">6</h2>
+                        <p class="text-muted">ML Models</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="p-3">
+                        <h2 class="display-4 fw-bold text-info">85%+</h2>
+                        <p class="text-muted">ROC-AUC Score</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="p-3">
+                        <h2 class="display-4 fw-bold text-warning">10</h2>
+                        <p class="text-muted">Input Features</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="bg-primary text-white text-center py-5">
+        <div class="container">
+            <h2 class="fw-bold mb-3">Ready to Predict Customer Churn?</h2>
+            <p class="lead mb-4">
+                Start using our advanced ML models to identify at-risk customers
+            </p>
+            <a href="/predict" class="btn btn-light btn-lg px-5">
+                <i class="fas fa-rocket"></i> Get Started Now
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white text-center py-4">
+        <div class="container">
+            <p class="mb-0">
+                <i class="fas fa-chart-line"></i> Bank Customer Churn Prediction System
+            </p>
+            <p class="mb-0 text-muted small">
+                Powered by Machine Learning | Built with Flask & TensorFlow
+            </p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+      </html>
