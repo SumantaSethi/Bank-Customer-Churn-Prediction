@@ -1,0 +1,368 @@
+<!-- predict.html -->
+<!-- Customer Information Input Form -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Predict customer churn using machine learning">
+    <title>Make Prediction - Bank Churn Predictor</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top shadow">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-chart-line"></i> Bank Churn Predictor
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">
+                            <i class="fas fa-home"></i> Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/predict">
+                            <i class="fas fa-calculator"></i> Predict
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/models-info">
+                            <i class="fas fa-brain"></i> Models
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/about">
+                            <i class="fas fa-info-circle"></i> About
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mt-5 mb-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-9">
+                <!-- Page Header -->
+                <div class="text-center mb-4">
+                    <h1 class="display-5 fw-bold text-primary">
+                        <i class="fas fa-user-check"></i> Customer Churn Prediction
+                    </h1>
+                    <p class="lead text-muted">
+                        Enter customer information to predict churn probability using 6 ML models
+                    </p>
+                </div>
+
+                <!-- Error Alert -->
+                {% if error %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-triangle"></i> <strong>Error!</strong> {{ error }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endif %}
+
+                <!-- Prediction Form Card -->
+                <div class="card shadow-lg border-0">
+                    <div class="card-header bg-gradient-primary text-white py-3">
+                        <h4 class="mb-0">
+                            <i class="fas fa-edit"></i> Customer Information Form
+                        </h4>
+                    </div>
+                    <div class="card-body p-4">
+                        <form method="POST" action="/predict" id="predictionForm">
+                            
+                            <!-- Section 1: Personal Information -->
+                            <div class="section-header mb-3">
+                                <h5 class="text-primary border-bottom pb-2">
+                                    <i class="fas fa-user"></i> Personal Information
+                                </h5>
+                            </div>
+
+                            <div class="row">
+                                <!-- Credit Score -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="credit_score" class="form-label">
+                                        <i class="fas fa-credit-card"></i> Credit Score *
+                                    </label>
+                                    <input type="number" 
+                                           class="form-control form-control-lg" 
+                                           id="credit_score" 
+                                           name="credit_score" 
+                                           min="300" 
+                                           max="850" 
+                                           placeholder="Enter credit score (300-850)"
+                                           required>
+                                    <div class="form-text">
+                                        <i class="fas fa-info-circle"></i> Range: 300 (Poor) to 850 (Excellent)
+                                    </div>
+                                </div>
+
+                                <!-- Age -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="age" class="form-label">
+                                        <i class="fas fa-birthday-cake"></i> Age *
+                                    </label>
+                                    <input type="number" 
+                                           class="form-control form-control-lg" 
+                                           id="age" 
+                                           name="age" 
+                                           min="18" 
+                                           max="100" 
+                                           placeholder="Enter age"
+                                           required>
+                                    <div class="form-text">
+                                        <i class="fas fa-info-circle"></i> Customer's age in years
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <!-- Geography -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="geography" class="form-label">
+                                        <i class="fas fa-globe"></i> Geography *
+                                    </label>
+                                    <select class="form-select form-select-lg" 
+                                            id="geography" 
+                                            name="geography" 
+                                            required>
+                                        <option value="">-- Select Country --</option>
+                                        <option value="France">🇫🇷 France</option>
+                                        <option value="Germany">🇩🇪 Germany</option>
+                                        <option value="Spain">🇪🇸 Spain</option>
+                                    </select>
+                                    <div class="form-text">
+                                        <i class="fas fa-info-circle"></i> Customer's country
+                                    </div>
+                                </div>
+
+                                <!-- Gender -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="gender" class="form-label">
+                                        <i class="fas fa-venus-mars"></i> Gender *
+                                    </label>
+                                    <select class="form-select form-select-lg" 
+                                            id="gender" 
+                                            name="gender" 
+                                            required>
+                                        <option value="">-- Select Gender --</option>
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                    </select>
+                                    <div class="form-text">
+                                        <i class="fas fa-info-circle"></i> Customer's gender
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Section 2: Banking Information -->
+                            <div class="section-header mb-3 mt-4">
+                                <h5 class="text-primary border-bottom pb-2">
+                                    <i class="fas fa-university"></i> Banking Information
+                                </h5>
+                            </div>
+
+                            <div class="row">
+                                <!-- Tenure -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="tenure" class="form-label">
+                                        <i class="fas fa-calendar-alt"></i> Tenure (Years) *
+                                    </label>
+                                    <input type="number" 
+                                           class="form-control form-control-lg" 
+                                           id="tenure" 
+                                           name="tenure" 
+                                           min="0" 
+                                           max="10" 
+                                           placeholder="Years as customer (0-10)"
+                                           required>
+                                    <div class="form-text">
+                                        <i class="fas fa-info-circle"></i> Number of years as bank customer
+                                    </div>
+                                </div>
+
+                                <!-- Balance -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="balance" class="form-label">
+                                        <i class="fas fa-dollar-sign"></i> Account Balance *
+                                    </label>
+                                    <input type="number" 
+                                           step="0.01" 
+                                           class="form-control form-control-lg" 
+                                           id="balance" 
+                                           name="balance" 
+                                           min="0" 
+                                           placeholder="Enter account balance"
+                                           required>
+                                    <div class="form-text">
+                                        <i class="fas fa-info-circle"></i> Current account balance in USD
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <!-- Number of Products -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="num_products" class="form-label">
+                                        <i class="fas fa-shopping-bag"></i> Number of Products *
+                                    </label>
+                                    <select class="form-select form-select-lg" 
+                                            id="num_products" 
+                                            name="num_products" 
+                                            required>
+                                        <option value="">-- Select Number --</option>
+                                        <option value="1">1 Product</option>
+                                        <option value="2">2 Products</option>
+                                        <option value="3">3 Products</option>
+                                        <option value="4">4 Products</option>
+                                    </select>
+                                    <div class="form-text">
+                                        <i class="fas fa-info-circle"></i> Number of bank products customer has
+                                    </div>
+                                </div>
+
+                                <!-- Estimated Salary -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="estimated_salary" class="form-label">
+                                        <i class="fas fa-money-bill-wave"></i> Estimated Salary *
+                                    </label>
+                                    <input type="number" 
+                                           step="0.01" 
+                                           class="form-control form-control-lg" 
+                                           id="estimated_salary" 
+                                           name="estimated_salary" 
+                                           min="0" 
+                                           placeholder="Enter estimated annual salary"
+                                           required>
+                                    <div class="form-text">
+                                        <i class="fas fa-info-circle"></i> Estimated annual salary in USD
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Section 3: Account Status -->
+                            <div class="section-header mb-3 mt-4">
+                                <h5 class="text-primary border-bottom pb-2">
+                                    <i class="fas fa-check-circle"></i> Account Status
+                                </h5>
+                            </div>
+
+                            <div class="row">
+                                <!-- Has Credit Card -->
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">
+                                        <i class="fas fa-credit-card"></i> Has Credit Card? *
+                                    </label>
+                                    <div class="btn-group w-100" role="group">
+                                        <input type="radio" 
+                                               class="btn-check" 
+                                               name="has_credit_card" 
+                                               id="has_cc_yes" 
+                                               value="1" 
+                                               required>
+                                        <label class="btn btn-outline-success" for="has_cc_yes">
+                                            <i class="fas fa-check"></i> Yes
+                                        </label>
+
+                                        <input type="radio" 
+                                               class="btn-check" 
+                                               name="has_credit_card" 
+                                               id="has_cc_no" 
+                                               value="0">
+                                        <label class="btn btn-outline-danger" for="has_cc_no">
+                                            <i class="fas fa-times"></i> No
+                                        </label>
+                                    </div>
+                                    <div class="form-text">
+                                        <i class="fas fa-info-circle"></i> Does customer have a credit card?
+                                    </div>
+                                </div>
+
+                                <!-- Is Active Member -->
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">
+                                        <i class="fas fa-user-check"></i> Is Active Member? *
+                                    </label>
+                                    <div class="btn-group w-100" role="group">
+                                        <input type="radio" 
+                                               class="btn-check" 
+                                               name="is_active_member" 
+                                               id="is_active_yes" 
+                                               value="1" 
+                                               required>
+                                        <label class="btn btn-outline-success" for="is_active_yes">
+                                            <i class="fas fa-check"></i> Yes
+                                        </label>
+
+                                        <input type="radio" 
+                                               class="btn-check" 
+                                               name="is_active_member" 
+                                               id="is_active_no" 
+                                               value="0">
+                                        <label class="btn btn-outline-danger" for="is_active_no">
+                                            <i class="fas fa-times"></i> No
+                                        </label>
+                                    </div>
+                                    <div class="form-text">
+                                        <i class="fas fa-info-circle"></i> Is customer actively using the account?
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Form Actions -->
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-center mt-5">
+                                <button type="submit" class="btn btn-primary btn-lg px-5">
+                                    <i class="fas fa-chart-line"></i> Predict Churn Probability
+                                </button>
+                                <button type="reset" class="btn btn-outline-secondary btn-lg px-5">
+                                    <i class="fas fa-redo"></i> Reset Form
+                                </button>
+                            </div>
+
+                            <div class="text-center mt-3">
+                                <small class="text-muted">
+                                    <i class="fas fa-lock"></i> Your data is processed securely and not stored
+                                </small>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Info Card -->
+                <div class="card mt-4 border-info">
+                    <div class="card-body">
+                        <h6 class="card-title text-info">
+                            <i class="fas fa-info-circle"></i> How it works
+                        </h6>
+                        <p class="card-text small mb-0">
+                            Our system uses 6 different machine learning models to predict the probability 
+                            of customer churn. Each model analyzes the customer data from different angles, 
+                            and we provide you with individual predictions from each model along with an 
+                            average probability score.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white text-center py-4 mt-5">
+        <div class="container">
+     
