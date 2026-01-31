@@ -2,8 +2,8 @@
 # Python package dependencies for Bank Churn Prediction project
 
 # Core Data Science Libraries
-numpy>=2.0.0
-pandas==1.5.3
+numpy>=2.0.
+pandas>=2.2.3
 scikit-learn==1.5.2
 
 # Deep Learning
