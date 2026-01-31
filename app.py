@@ -1,7 +1,7 @@
 # Flask Application (app.py)
 # Main web application for Bank Churn Prediction
 
-IMPORT LIBRARIES
+# IMPORT LIBRARIES
 
 from flask import Flask, render_template, request, jsonify
 import numpy as np
@@ -10,12 +10,12 @@ import joblib
 from tensorflow import keras
 import os
 
-INITIALIZE FLASK APP
+# INITIALIZE FLASK APP
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key-here'
 
-LOAD ALL MODELS
+# LOAD ALL MODELS
 
 print("Loading models...")
 
@@ -38,7 +38,7 @@ try:
 except Exception as e:
     print(f"❌ Error loading models: {str(e)}")
 
-HELPER FUNCTIONS
+# HELPER FUNCTIONS
 
 def preprocess_input(data):
     """
@@ -97,7 +97,7 @@ def get_risk_level(probability):
         return 'High Risk', 'danger', 'Immediate retention action recommended'
 
 
-ROUTES
+# ROUTES
 
 
 @app.route('/')
@@ -293,7 +293,7 @@ def models_info():
     return render_template('models_info.html')
 
 
-ERROR HANDLERS
+# ERROR HANDLERS
 
 @app.errorhandler(404)
 def page_not_found(e):
