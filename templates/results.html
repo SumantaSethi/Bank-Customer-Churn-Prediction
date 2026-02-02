@@ -245,7 +245,8 @@
                                     
                                     <!-- Progress Bar -->
                                     <div class="progress mb-3" style="height: 20px;">
-                                        {% if prediction.probability is not none and prediction.probability >= 60 %}
+                                        {% set prob_value = prediction.probability|float(0) %}
+                                        {% if prob_value >= 60 %}
                                             <div class="progress-bar bg-danger" 
                                                  role="progressbar" 
                                                  style="width: {{ prediction.probability }}%;">
