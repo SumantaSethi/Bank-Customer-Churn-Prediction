@@ -129,6 +129,17 @@ def predict():
             if any(value is None for value in data.values()):
                 return render_template('predict.html', 
                                      error="Please fill in all fields")
+            if not all([credit_score, geography, gender, age, ...]):
+                return error message
+
+            try:
+                credit_score = int(credit_score)
+                balance = float(balance)
+            except ValueError:
+                return error message
+            if not (300 <= credit_score <= 850):
+                return error message
+                
             
             # Preprocess input
             features = preprocess_input(data)
