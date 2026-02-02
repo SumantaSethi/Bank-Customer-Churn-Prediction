@@ -245,12 +245,12 @@
                                     
                                     <!-- Progress Bar -->
                                     <div class="progress mb-3" style="height: 20px;">
-                                        {% if prediction.probability >= 60 %}
+                                        {% if prediction.probability is not none and prediction.probability >= 60 %}
                                             <div class="progress-bar bg-danger" 
                                                  role="progressbar" 
                                                  style="width: {{ prediction.probability }}%;">
                                             </div>
-                                        {% elif prediction.probability >= 40 %}
+                                        {% elif prediction.probability is not none and prediction.probability >= 40 %}
                                             <div class="progress-bar bg-warning" 
                                                  role="progressbar" 
                                                  style="width: {{ prediction.probability }}%;">
