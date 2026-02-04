@@ -1,3 +1,5 @@
+<!-- Customer Information Input Form -->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -22,7 +24,7 @@
             <a class="navbar-brand" href="/">
                 <i class="fas fa-chart-line"></i> Bank Churn Predictor
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
@@ -33,17 +35,17 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" href="{{ url_for('predict') }}">
+                        <a class="nav-link active" href="/predict">
                             <i class="fas fa-calculator"></i> Predict
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('models_info') if 'models_info' in globals() else '/models-info' }}">
+                        <a class="nav-link" href="/models-info">
                             <i class="fas fa-brain"></i> Models
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('about') if 'about' in globals() else '/about' }}">
+                        <a class="nav-link" href="/about">
                             <i class="fas fa-info-circle"></i> About
                         </a>
                     </li>
@@ -70,7 +72,7 @@
                 {% if error %}
                 <div class="alert alert-danger alert-dismissible fade show" role="alert">
                     <i class="fas fa-exclamation-triangle"></i> <strong>Error!</strong> {{ error }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
                 {% endif %}
 
@@ -82,8 +84,7 @@
                         </h4>
                     </div>
                     <div class="card-body p-4">
-                        <form method="POST" action="{{ url_for('predict') }}" id="predictionForm">
-                            {# If using Flask-WTF add: {{ form.csrf_token }} here #}
+                        <form method="POST" action="/predict" id="predictionForm">
                             
                             <!-- Section 1: Personal Information -->
                             <div class="section-header mb-3">
@@ -356,20 +357,11 @@
                         </p>
                     </div>
                 </div>
-            </div> <!-- /.col-lg-9 -->
-        </div> <!-- /.row -->
-    </div> <!-- /.container -->
+            </div>
+        </div>
+    </div>
 
     <!-- Footer -->
     <footer class="bg-dark text-white text-center py-4 mt-5">
         <div class="container">
-            <p class="mb-0 small">
-                &copy; {{ current_year if current_year is defined else "2026" }} Bank Churn Predictor — Built with ❤️
-            </p>
-        </div>
-    </footer>
-
-    <!-- Bootstrap JS (includes Popper) -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+     
