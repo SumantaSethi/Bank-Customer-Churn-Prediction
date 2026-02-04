@@ -55,6 +55,34 @@ def get_risk_level(probability):
     else:
         return 'High Risk', 'danger', 'Immediate retention action recommended'
 
+def _get_field(form, name, type_func=str, required=True, min_val=None, max_val=None, allowed=None):
+    """
+    Safely extract and validate a field from request.form.
+
+    - form: request.form
+    - name: field name
+    - type_func: conversion function (int, float, str)
+    - required: if True, raise ValueError on missing/empty value
+    - min_val / max_val: numeric range checks (applies after conversion)
+    - allowed: set or list of allowed values (applies after conversion)
+    """
+    val = form.get(name)
+    if required and (val is None or str(val).strip() == ""):
+        raise ValueError(f"Missing required field: {name}")
+    if val is None or str(val).strip() == "":
+        return None
+    try:
+        parsed = type_func(val)
+    except (ValueError, TypeError):
+        raise ValueError(f"Invalid value for {name}: {val!r}")
+    if min_val is not None and parsed < min_val:
+        raise ValueError(f"{name} must be >= {min_val}")
+    if max_val is not None and parsed > max_val:
+        raise ValueError(f"{name} must be <= {max_val}")
+    if allowed is not None and parsed not in allowed:
+        raise ValueError(f"{name} must be one of {allowed}")
+    return parsed
+
 
 @app.route('/')
 def home():
