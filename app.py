@@ -77,15 +77,17 @@ def _get_field(form, name, type_func=str, required=True, min_val=None, max_val=N
     if required and (val is None or str(val).strip() == ""):
         raise ValueError(f"Missing required field: {name}")
     if val is None or str(val).strip() == "":
-        return None
+        return None  # Return early if not required and empty
     try:
         parsed = type_func(val)
     except (ValueError, TypeError):
         raise ValueError(f"Invalid value for {name}: {val!r}")
-    if min_val is not None and parsed < min_val:
-        raise ValueError(f"{name} must be >= {min_val}")
-    if max_val is not None and parsed > max_val:
-        raise ValueError(f"{name} must be <= {max_val}")
+    # Only check bounds if parsed is not None
+    if parsed is not None:
+        if min_val is not None and parsed < min_val:
+            raise ValueError(f"{name} must be >= {min_val}")
+        if max_val is not None and parsed > max_val:
+            raise ValueError(f"{name} must be <= {max_val}")
     if allowed is not None and parsed not in allowed:
         raise ValueError(f"{name} must be one of {sorted(list(allowed))}")
     return parsed
