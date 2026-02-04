@@ -92,6 +92,10 @@ def _get_field(form, name, type_func=str, required=True, min_val=None, max_val=N
         raise ValueError(f"{name} must be one of {sorted(list(allowed))}")
     return parsed
 
+def decode(pred):
+    if pred == 1: return 'Customer Exits'
+    else: return 'Customer Stays'
+
 
 @app.route('/')
 def home():
