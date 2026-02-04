@@ -4,10 +4,15 @@ import pandas as pd
 import joblib
 from tensorflow import keras
 import os
+import logging
 
 # Initialize Flask app
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key-here'
+
+# Configure logger for debugging
+logging.basicConfig(level=logging.DEBUG)
+app.logger.setLevel(logging.DEBUG)
 
 # Load all models
 print("Loading models...")
@@ -23,13 +28,14 @@ try:
     print("✅ All models loaded successfully!")
 except Exception as e:
     print(f"❌ Error loading models: {str(e)}")
+    app.logger.exception("Error loading models")
 
 
 def preprocess_input(data):
     """Preprocess user input data for model prediction"""
     geography_mapping = {'France': 0, 'Germany': 1, 'Spain': 2}
     gender_mapping = {'Male': 0, 'Female': 1}
-    
+
     features = np.array([[
         float(data['credit_score']),
         geography_mapping[data['geography']],
@@ -42,18 +48,19 @@ def preprocess_input(data):
         int(data['is_active_member']),
         float(data['estimated_salary'])
     ]])
-    
+
     return features
 
 
 def get_risk_level(probability):
-    """Determine risk level based on churn probability"""
+    """Determine risk level based on churn probability (probability in 0..1)"""
     if probability < 0.3:
         return 'Low Risk', 'success', 'Customer is likely to stay'
     elif probability < 0.6:
         return 'Medium Risk', 'warning', 'Customer may need attention'
     else:
         return 'High Risk', 'danger', 'Immediate retention action recommended'
+
 
 def _get_field(form, name, type_func=str, required=True, min_val=None, max_val=None, allowed=None):
     """
@@ -80,7 +87,7 @@ def _get_field(form, name, type_func=str, required=True, min_val=None, max_val=N
     if max_val is not None and parsed > max_val:
         raise ValueError(f"{name} must be <= {max_val}")
     if allowed is not None and parsed not in allowed:
-        raise ValueError(f"{name} must be one of {allowed}")
+        raise ValueError(f"{name} must be one of {sorted(list(allowed))}")
     return parsed
 
 
@@ -93,54 +100,24 @@ def home():
 @app.route('/predict', methods=['GET', 'POST'])
 def predict():
     """Prediction page and endpoint"""
-    
+
     if request.method == 'POST':
+        # Log posted form for debugging
+        app.logger.debug("Predict form data: %s", request.form.to_dict())
+
         try:
-            # Get form data
-            credit_score = request.form.get('credit_score')
-            geography = request.form.get('geography')
-            gender = request.form.get('gender')
-            age = request.form.get('age')
-            tenure = request.form.get('tenure')
-            balance = request.form.get('balance')
-            num_products = request.form.get('num_products')
-            has_credit_card = request.form.get('has_credit_card')
-            is_active_member = request.form.get('is_active_member')
-            estimated_salary = request.form.get('estimated_salary')
-            
-            # Check all fields are present
-            if not all([credit_score, geography, gender, age, tenure, balance, 
-                       num_products, has_credit_card, is_active_member, estimated_salary]):
-                return render_template('predict.html', 
-                                     error="Please fill in all fields")
-            
-            # Convert to proper types
-            try:
-                credit_score = int(credit_score)
-                age = int(age)
-                tenure = int(tenure)
-                balance = float(balance)
-                num_products = int(num_products)
-                has_credit_card = int(has_credit_card)
-                is_active_member = int(is_active_member)
-                estimated_salary = float(estimated_salary)
-            except ValueError:
-                return render_template('predict.html', 
-                                     error="Invalid number format in one or more fields")
-            
-            # Validate ranges
-            if not (300 <= credit_score <= 850):
-                return render_template('predict.html', 
-                                     error="Credit score must be between 300 and 850")
-            
-            if not (18 <= age <= 100):
-                return render_template('predict.html', 
-                                     error="Age must be between 18 and 100")
-            
-            if not (0 <= tenure <= 10):
-                return render_template('predict.html', 
-                                     error="Tenure must be between 0 and 10 years")
-            
+            # Validate and parse fields using helper
+            credit_score = _get_field(request.form, "credit_score", int, True, 300, 850)
+            age = _get_field(request.form, "age", int, True, 18, 100)
+            geography = _get_field(request.form, "geography", str, True, allowed={"France", "Germany", "Spain"})
+            gender = _get_field(request.form, "gender", str, True, allowed={"Male", "Female"})
+            tenure = _get_field(request.form, "tenure", int, True, 0, 10)
+            balance = _get_field(request.form, "balance", float, True, 0)
+            num_products = _get_field(request.form, "num_products", int, True, 1, 100)
+            estimated_salary = _get_field(request.form, "estimated_salary", float, True, 0)
+            has_credit_card = _get_field(request.form, "has_credit_card", int, True, 0, 1)
+            is_active_member = _get_field(request.form, "is_active_member", int, True, 0, 1)
+
             # Prepare data
             data = {
                 'credit_score': credit_score,
@@ -154,13 +131,13 @@ def predict():
                 'is_active_member': is_active_member,
                 'estimated_salary': estimated_salary
             }
-            
+
             # Preprocess input
             features = preprocess_input(data)
-            
+
             # Get predictions from all models
             predictions = {}
-            
+
             # Logistic Regression
             try:
                 prob_lr = model_logistic.predict_proba(features)[0][1]
@@ -169,8 +146,9 @@ def predict():
                     'prediction': 'Will Churn' if prob_lr > 0.5 else 'Will Stay'
                 }
             except Exception as e:
+                app.logger.exception("Logistic regression prediction failed")
                 predictions['Logistic Regression'] = {'error': str(e)}
-            
+
             # Random Forest
             try:
                 prob_rf = model_rf.predict_proba(features)[0][1]
@@ -179,8 +157,9 @@ def predict():
                     'prediction': 'Will Churn' if prob_rf > 0.5 else 'Will Stay'
                 }
             except Exception as e:
+                app.logger.exception("Random forest prediction failed")
                 predictions['Random Forest'] = {'error': str(e)}
-            
+
             # SVM
             try:
                 prob_svm = model_svm.predict_proba(features)[0][1]
@@ -189,8 +168,9 @@ def predict():
                     'prediction': 'Will Churn' if prob_svm > 0.5 else 'Will Stay'
                 }
             except Exception as e:
+                app.logger.exception("SVM prediction failed")
                 predictions['SVM (SMOTE)'] = {'error': str(e)}
-            
+
             # XGBoost
             try:
                 prob_xgb = model_xgb.predict_proba(features)[0][1]
@@ -199,8 +179,9 @@ def predict():
                     'prediction': 'Will Churn' if prob_xgb > 0.5 else 'Will Stay'
                 }
             except Exception as e:
+                app.logger.exception("XGBoost prediction failed")
                 predictions['XGBoost'] = {'error': str(e)}
-            
+
             # Deep Learning
             try:
                 prob_dl = model_dl.predict(features, verbose=0)[0][0]
@@ -209,18 +190,20 @@ def predict():
                     'prediction': 'Will Churn' if prob_dl > 0.5 else 'Will Stay'
                 }
             except Exception as e:
+                app.logger.exception("Deep learning prediction failed")
                 predictions['Deep Learning'] = {'error': str(e)}
-            
-            # Calculate average probability
+
+            # Calculate average probability (predictions probabilities are percentages 0..100)
             valid_probs = [p['probability'] for p in predictions.values() if 'probability' in p]
-            
+
             if valid_probs:
-                avg_probability = round(np.mean(valid_probs), 2)
-                risk_level, risk_color, risk_message = get_risk_level(avg_probability / 100)
+                avg_probability = round(np.mean(valid_probs), 2)  # still percentage 0..100
+                # convert to 0..1 for get_risk_level
+                risk_level, risk_color, risk_message = get_risk_level(avg_probability / 100.0)
             else:
                 avg_probability = None
                 risk_level = risk_color = risk_message = None
-            
+
             # Prepare customer data for display
             customer_data = {
                 'credit_score': credit_score,
@@ -234,19 +217,23 @@ def predict():
                 'is_active_member': 'Yes' if is_active_member == 1 else 'No',
                 'estimated_salary': f"${float(estimated_salary):,.2f}"
             }
-            
+
             return render_template('results.html',
-                                 predictions=predictions,
-                                 avg_probability=avg_probability,
-                                 risk_level=risk_level,
-                                 risk_color=risk_color,
-                                 risk_message=risk_message,
-                                 customer_data=customer_data)
-            
+                                   predictions=predictions,
+                                   avg_probability=avg_probability,
+                                   risk_level=risk_level,
+                                   risk_color=risk_color,
+                                   risk_message=risk_message,
+                                   customer_data=customer_data)
+
+        except ValueError as ve:
+            app.logger.warning("Validation error: %s", ve)
+            return render_template('predict.html', error=str(ve))
         except Exception as e:
-            return render_template('predict.html', 
-                                 error=f"An error occurred: {str(e)}")
-    
+            # Log full exception for debugging
+            app.logger.exception("Unexpected error during prediction")
+            return render_template('predict.html', error=f"An error occurred: {str(e)}")
+
     return render_template('predict.html')
 
 
@@ -256,7 +243,7 @@ def api_predict():
     try:
         data = request.get_json()
         features = preprocess_input(data)
-        
+
         results = {
             'logistic_regression': float(model_logistic.predict_proba(features)[0][1]),
             'random_forest': float(model_rf.predict_proba(features)[0][1]),
@@ -264,10 +251,10 @@ def api_predict():
             'xgboost': float(model_xgb.predict_proba(features)[0][1]),
             'deep_learning': float(model_dl.predict(features, verbose=0)[0][0])
         }
-        
+
         avg_prob = np.mean(list(results.values()))
         risk_level, _, risk_message = get_risk_level(avg_prob)
-        
+
         return jsonify({
             'success': True,
             'predictions': results,
@@ -275,8 +262,9 @@ def api_predict():
             'risk_level': risk_level,
             'risk_message': risk_message
         })
-        
+
     except Exception as e:
+        app.logger.exception("API predict failed")
         return jsonify({'success': False, 'error': str(e)}), 400
 
 
