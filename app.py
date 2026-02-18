@@ -93,8 +93,8 @@ def _get_field(form, name, type_func=str, required=True, min_val=None, max_val=N
     return parsed
 
 def decode(pred):
-    if pred == 1: return 'Customer Exits'
-    else: return 'Customer Stays'
+    if pred == 1: return 'will churn'
+    else: return 'will stay'
 
 
 @app.route('/')
