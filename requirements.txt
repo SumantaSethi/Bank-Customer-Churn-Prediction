@@ -21,7 +21,7 @@ xgboost==1.7.5
 
 # Web Framework
 Flask==2.3.2
-gunicorn==20.1.0
+gunicorn==21.2.0
 
 # Utilities
 joblib==1.2.0
