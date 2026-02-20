@@ -64,28 +64,30 @@ def get_risk_level(probability):
 
 def _get_field(form, name, type_func=str, required=True, min_val=None, max_val=None, allowed=None):
     val = form.get(name)
-    
-    # Check if empty
+
+    # ── Handle missing / empty ────────────────────────────────
     if val is None or str(val).strip() == "":
         if required:
             raise ValueError(f"Missing required field: {name}")
-        return None 
+        return None
 
+    # ── Convert type ───────────────────────────────────────────
     try:
         parsed = type_func(val)
-    except (ValueError, TypeError):
-        raise ValueError(f"Invalid value for {name}: {val!r}")
+    except (ValueError, TypeError) as e:
+        raise ValueError(f"Invalid value for {name}: '{val}' ({type(val).__name__}) → {e}")
 
-    # FIX: Only compare if parsed is NOT None
-    if parsed is not None:
-        if min_val is not None and parsed < min_val:
-            raise ValueError(f"{name} must be >= {min_val}")
-        if max_val is not None and parsed > max_val:
-            raise ValueError(f"{name} must be <= {max_val}")
+    # ── Now we know parsed is NOT None ─────────────────────────
+    #    (because type conversion succeeded)
+
+    if min_val is not None and parsed < min_val:
+        raise ValueError(f"{name} must be >= {min_val} (got {parsed})")
+    if max_val is not None and parsed > max_val:
+        raise ValueError(f"{name} must be <= {max_val} (got {parsed})")
 
     if allowed is not None and parsed not in allowed:
-        raise ValueError(f"{name} must be one of {sorted(list(allowed))}")
-    
+        raise ValueError(f"{name} must be one of {sorted(allowed)} (got {parsed!r})")
+
     return parsed
 
 def decode(pred):
