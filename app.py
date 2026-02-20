@@ -212,6 +212,9 @@ def predict():
                 'estimated_salary': f"${float(estimated_salary):,.2f}"
             }
 
+            app.logger.info("Prediction successful - rendering results.html")
+            print("DEBUG: Rendering results.html with avg prob =", avg_probability)
+
             return render_template('results.html',
                                    predictions=predictions,
                                    avg_probability=avg_probability,
