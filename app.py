@@ -1,59 +1,73 @@
 import numpy as np
 import joblib
 from flask import Flask, request, render_template
+from tensorflow import keras
 
 app = Flask(__name__)
 
-# Load models once at startup
-loaded_models = {
-    'Decision Tree': joblib.load('models/nate_decision_tree.sav'),
-    'K-nearest Neighbors': joblib.load('models/nate_knn.sav'),
-    'Logistic Regression': joblib.load('models/nate_logistic_regression.sav'),
-    'Random Forest': joblib.load('models/nate_random_forest.sav'),
-    'SVM': joblib.load('models/SVM_model.sav'),
-    'XGBoost': joblib.load('models/XGBoost_model.sav')
-}
+# 1. Load models (keeping your original filenames)
+# Note: Ensure these files exist in your 'models/' folder
+try:
+    models = {
+        'Logistic Regression': joblib.load('models/logistic_regression.pkl'),
+        'Random Forest': joblib.load('models/random_forest.pkl'),
+        'SVM (SMOTE)': joblib.load('models/svm_smote.pkl'),
+        'XGBoost': joblib.load('models/xgboost.pkl'),
+        'Deep Learning': keras.models.load_model('models/deep_learning.h5')
+    }
+except Exception as e:
+    print(f"Error loading models: {e}")
 
-def decode(pred):
-    return 'Customer Exits' if pred == 1 else 'Customer Stays'
+def decode(prob):
+    """Simple threshold check for churn"""
+    return 'Will Churn' if prob > 0.5 else 'Will Stay'
 
 @app.route('/')
 def home():
-    # Placeholder state for first load
-    predictions = [{'model': name, 'prediction': '—'} for name in loaded_models.keys()]
+    # Initial state for the table
+    predictions = [{'model': name, 'prediction': ' '} for name in models.keys()]
     return render_template('index.html', maind={'customer': {}, 'predictions': predictions})
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    # 1. Extract and convert values to float (Critical for Scikit-Learn/XGBoost)
-    try:
-        raw_values = list(request.form.values())
-        numeric_values = [float(x) for x in raw_values] 
-        new_array = np.array(numeric_values).reshape(1, -1)
-    except ValueError as e:
-        return f"Error: Please ensure all inputs are numeric. {e}", 400
+    # 2. Extract values and convert to float for math operations
+    # Order must match: CreditScore, Geography, Gender, Age, Tenure, Balance, Products, HasCard, Active, Salary
+    raw_values = list(request.form.values())
+    numeric_values = [float(x) for x in raw_values]
+    new_array = np.array(numeric_values).reshape(1, -1)
 
-    # 2. Build Customer Display Dictionary
+    # 3. Create customer display dictionary
     cols = ['CreditScore', 'Geography', 'Gender', 'Age', 'Tenure', 
             'Balance', 'NumOfProducts', 'HasCrCard', 'IsActiveMember', 'EstimatedSalary']
-    
     custd = dict(zip(cols, raw_values))
     
-    # Prettify Yes/No fields
+    # Prettify Binary values
     for field in ['HasCrCard', 'IsActiveMember']:
         custd[field] = 'Yes' if custd.get(field) == '1' else 'No'
 
-    # 3. Generate Predictions via Loop
+    # 4. Loop through models and predict
     results = []
-    for name, model in loaded_models.items():
+    for name, model in models.items():
         try:
-            pred = model.predict(new_array)[0]
-            results.append({'model': name, 'prediction': decode(pred)})
+            # Handle Deep Learning (returns array) vs Scikit-Learn (returns proba)
+            if name == 'Deep Learning':
+                prob = float(model.predict(new_array, verbose=0)[0][0])
+            else:
+                # Use predict_proba for consistency if available, else predict
+                prob = model.predict_proba(new_array)[0][1]
+            
+            results.append({
+                'model': name, 
+                'prediction': decode(prob),
+                'probability': f"{round(prob * 100, 2)}%"
+            })
         except Exception as e:
-            results.append({'model': name, 'prediction': f"Error: {str(e)}"})
+            results.append({'model': name, 'prediction': 'Error', 'probability': 'N/A'})
 
-    return render_template('index.html', maind={'customer': custd, 'predictions': results})
+    # 5. Wrap in maind and return
+    maind = {'customer': custd, 'predictions': results}
+    return render_template('index.html', maind=maind)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     app.run(debug=True)
     
